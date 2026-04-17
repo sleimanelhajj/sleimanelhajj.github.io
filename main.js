@@ -441,7 +441,7 @@ async function playTerminalAnimation() {
 // ── Vanta Background ─────────────────────────────────────────────
 function initVanta() {
     if (typeof VANTA === 'undefined') return;
-    VANTA.NET({
+    VANTA.BIRDS({
         el: '#vanta-bg',
         mouseControls: true,
         touchControls: true,
@@ -450,12 +450,17 @@ function initVanta() {
         minWidth: 200,
         scale: 1.0,
         scaleMobile: 0.6,
-        color: 0x9b84f5,        // purple nodes & lines
         backgroundColor: 0xfaf9ff,
-        points: 9.0,
-        maxDistance: 22.0,
-        spacing: 19.0,
-        showDots: true
+        color1: 0x9b84f5,
+        color2: 0xf472b6,
+        colorMode: 'variance',
+        birdSize: 1.2,
+        wingSpan: 28,
+        speedLimit: 4.0,
+        separation: 60,
+        alignment: 50,
+        cohesion: 50,
+        quantity: 4,
     });
 }
 
