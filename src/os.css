@@ -374,3 +374,19 @@ kbd { font-family: var(--mono); font-size: 10px; padding: 1px 5px; border-radius
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
+
+/* ================= Mobile performance ================= */
+@keyframes popIn { from { opacity: 0; transform: scale(0.75); } }
+.m-app { animation: popIn .35s cubic-bezier(.34,1.56,.64,1) both; }
+.m-hero { animation: popIn .35s ease-out both; }
+/* The sheet is opaque: no live blur of everything behind it while it slides */
+.m-sheet { background: #0a0f1b; backdrop-filter: none; -webkit-backdrop-filter: none; will-change: transform; contain: layout paint; }
+/* Hide the home screen's paint work while an app covers it */
+.m-home.covered .led, .m-home.covered .caret { animation: none; }
+@media (max-width: 767px), (hover: none) {
+  /* Static wallpaper: no animated 80px blurs or blend modes on phones */
+  .aurora { animation: none; mix-blend-mode: normal; filter: blur(50px); opacity: 0.8; }
+  .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .die { mask-image: none; -webkit-mask-image: none; opacity: 0.6; }
+  .watermark { -webkit-text-stroke: 1px rgba(255,255,255,0.05); }
+}

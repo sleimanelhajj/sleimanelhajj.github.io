@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FiChevronLeft, FiWifi, FiBattery } from 'react-icons/fi'
 import { APPS, AppIcon, getApp } from './registry'
@@ -7,71 +7,100 @@ import { Typewriter } from '../components/ui'
 import { profile } from '../data'
 
 const DOCK = ['about', 'terminal', 'projects', 'contact']
+const EASE = [0.32, 0.72, 0, 1] // iOS-like sheet curve
+
+// Clock lives in its own component so the ticking only re-renders this text,
+// not the whole home screen and the open app.
+function StatusClock() {
+  return <span>{fmtTime(useClock(15000))}</span>
+}
+
+// The open app. Memoised so the home screen re-rendering never re-renders it.
+const Sheet = memo(function Sheet({ app, os, onBack }) {
+  const C = app.comp
+  return (
+    <motion.div
+      className="m-sheet"
+      initial={{ y: '100%' }}
+      animate={{ y: 0, transition: { duration: 0.34, ease: EASE } }}
+      exit={{ y: '100%', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] } }}
+    >
+      <header className="m-sheet-head">
+        <button onClick={onBack}><FiChevronLeft /> Home</button>
+        <strong>{app.label}</strong>
+        <AppIcon app={app} size={26} />
+      </header>
+      <div className="m-sheet-body win-body">
+        <C os={os} />
+      </div>
+    </motion.div>
+  )
+})
 
 export default function MobileHome() {
-  const now = useClock()
   const [active, setActive] = useState(null)
-  const os = useMemo(() => ({
-    open: (id) => (id === 'resume' ? window.open(profile.resume, '_blank') : setActive(id)),
-  }), [])
+
+  // Opening an app adds a history entry, so the phone's back button / back
+  // gesture closes the app instead of leaving the site.
+  const openApp = useCallback((id) => {
+    if (id === 'resume') return window.open(profile.resume, '_blank')
+    setActive((cur) => {
+      if (cur) history.replaceState({ app: id }, '')
+      else history.pushState({ app: id }, '')
+      return id
+    })
+  }, [])
+
+  const back = useCallback(() => {
+    if (history.state?.app) history.back()
+    else setActive(null)
+  }, [])
+
+  useEffect(() => {
+    const onPop = (e) => setActive(e.state?.app ?? null)
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
+  const os = useMemo(() => ({ open: openApp }), [openApp])
   const app = active && getApp(active)
-  const C = app?.comp
 
   return (
-    <div className="m-home">
+    <div className={`m-home ${app ? 'covered' : ''}`}>
       <div className="m-status">
-        <span>{fmtTime(now)}</span>
+        <StatusClock />
         <span className="m-notch" />
         <span className="m-icons"><FiWifi /><FiBattery /></span>
       </div>
 
-      <motion.button className="m-hero glass" onClick={() => os.open('about')} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+      <button className="m-hero glass" onClick={() => openApp('about')}>
         <img src={profile.photo} alt="" />
         <div>
           <span className="m-hello mono">hello_world()</span>
           <strong>{profile.firstName} {profile.lastName}</strong>
-          <span className="m-role mono"><Typewriter words={profile.roles} /></span>
+          <span className="m-role mono">{app ? profile.roles[0] : <Typewriter words={profile.roles} />}</span>
         </div>
         <span className="m-badge"><i className="led" /> {profile.status}</span>
-      </motion.button>
+      </button>
 
       <div className="m-grid">
         {APPS.map((a, i) => (
-          <motion.button key={a.id} className="m-app" onClick={() => os.open(a.id)} initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 + i * 0.04, type: 'spring', stiffness: 300, damping: 20 }}>
+          <button key={a.id} className="m-app" style={{ animationDelay: `${0.05 + i * 0.035}s` }} onClick={() => openApp(a.id)}>
             <AppIcon app={a} size={60} />
             <span>{a.label}</span>
-          </motion.button>
+          </button>
         ))}
       </div>
 
       <div className="m-dock glass">
         {DOCK.map((id) => (
-          <button key={id} onClick={() => os.open(id)} aria-label={getApp(id).label}>
+          <button key={id} onClick={() => openApp(id)} aria-label={getApp(id).label}>
             <AppIcon app={getApp(id)} size={56} />
           </button>
         ))}
       </div>
 
-      <AnimatePresence>
-        {app && (
-          <motion.div
-            className="m-sheet"
-            initial={{ y: '100%', borderRadius: 40 }}
-            animate={{ y: 0, borderRadius: 0 }}
-            exit={{ y: '100%', borderRadius: 40 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-          >
-            <header className="m-sheet-head">
-              <button onClick={() => setActive(null)}><FiChevronLeft /> Home</button>
-              <strong>{app.label}</strong>
-              <AppIcon app={app} size={26} />
-            </header>
-            <div className="m-sheet-body win-body">
-              <C os={os} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <AnimatePresence>{app && <Sheet key={app.id} app={app} os={os} onBack={back} />}</AnimatePresence>
     </div>
   )
 }
