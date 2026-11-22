@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FiHelpCircle, FiSearch, FiWifi, FiBattery, FiGithub, FiLinkedin, FiArrowUpRight } from 'react-icons/fi'
 import { APPS, AppIcon, getApp } from './registry'
-import { useClock, useTick, fmtTime, fmtDate } from './hooks'
+import { useClock, fmtTime, fmtDate } from './hooks'
 import { profile } from '../data'
 
 export function Wallpaper() {
@@ -111,11 +111,6 @@ export function DesktopIcons({ onOpen }) {
 
 export function Widgets({ onOpen }) {
   const now = useClock()
-  const tick = useTick(900)
-  const start = useRef(Date.now())
-  const cores = useMemo(() => Array.from({ length: 8 }, (_, i) => 15 + Math.round(75 * Math.abs(Math.sin(tick * 0.55 + i * 1.7)))), [tick])
-  const up = Math.floor((Date.now() - start.current) / 1000)
-  const avg = Math.round(cores.reduce((s, c) => s + c, 0) / cores.length)
   return (
     <aside className="widgets">
       <motion.div className="widget glass w-clock" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
@@ -132,21 +127,7 @@ export function Widgets({ onOpen }) {
         </div>
       </motion.button>
 
-      <motion.div className="widget glass w-mon" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-        <div className="w-head"><span>CPU · brain.exe</span><b>{avg}%</b></div>
-        <div className="cores">
-          {cores.map((c, i) => (
-            <div key={i} className="core"><motion.span animate={{ height: `${c}%` }} transition={{ duration: 0.8 }} /></div>
-          ))}
-        </div>
-        <div className="w-rows">
-          <span>Uptime</span><b>{String(Math.floor(up / 60)).padStart(2, '0')}:{String(up % 60).padStart(2, '0')}</b>
-          <span>Coffee</span><b>{Math.max(12, 100 - Math.floor(up / 6))}%</b>
-          <span>Bugs fixed</span><b>{1024 + Math.floor(up / 3)}</b>
-        </div>
-      </motion.div>
-
-      <motion.div className="widget glass w-links" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+      <motion.div className="widget glass w-links" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
         <a href={profile.github} target="_blank" rel="noreferrer"><FiGithub /> GitHub</a>
         <a href={profile.linkedin} target="_blank" rel="noreferrer"><FiLinkedin /> LinkedIn</a>
       </motion.div>

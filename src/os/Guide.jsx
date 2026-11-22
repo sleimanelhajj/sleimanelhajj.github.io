@@ -1,7 +1,6 @@
 // The desktop's "front door": a centred welcome hub with launch cards,
 // plus hand-drawn notes and arrows that point at the icons, dock, widgets and search.
 import { AnimatePresence, motion } from 'framer-motion'
-import { FiArrowRight, FiTerminal } from 'react-icons/fi'
 import { AppIcon, getApp } from './registry'
 import { profile } from '../data'
 
@@ -20,7 +19,6 @@ export function Hub({ onOpen, dimmed }) {
       animate={{ opacity: dimmed ? 0.18 : 1, y: 0, scale: dimmed ? 0.97 : 1, filter: dimmed ? 'blur(2px)' : 'blur(0px)' }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      <p className="hub-kicker mono"><span className="led" /> system ready · {profile.status.toLowerCase()}</p>
       <h1 className="hub-title">
         Hi, I'm <span>{profile.firstName}</span>.<br />
         <em>Pick a door.</em>
@@ -40,19 +38,16 @@ export function Hub({ onOpen, dimmed }) {
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.97 }}
             >
-              <AppIcon app={app} size={44} />
+              <AppIcon app={app} size={26} />
               <span className="hub-q">{c.q}</span>
-              <span className="hub-a">{c.a}</span>
-              <FiArrowRight className="hub-go" />
             </motion.button>
           )
         })}
       </div>
       <div className="hub-foot">
         <button className="hub-term mono" onClick={() => onOpen('terminal')}>
-          <FiTerminal /> <span className="t-green">$</span> prefer the command line? open the terminal<span className="caret">_</span>
+          <span className="t-green">$</span> or open the terminal<span className="caret">_</span>
         </button>
-        <button className="hub-hire" onClick={() => onOpen('contact')}>Hire me →</button>
       </div>
     </motion.div>
   )

@@ -450,3 +450,15 @@ kbd { font-family: var(--mono); font-size: 10px; padding: 1px 5px; border-radius
 }
 /* Dock note: lift it so the arrow tip stops above the dock instead of under it */
 .n-dock { bottom: 96px; }
+
+/* ---- Hub v2: centred on screen, lighter ---- */
+.hub { left: 300px; right: 300px; gap: 28px; }
+@media (max-width: 1180px) { .hub { left: 120px; right: 120px; } }
+.hub-title { font-size: clamp(34px, 4.2vw, 58px); }
+.hub-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); width: min(520px, 100%); gap: 10px; }
+.hub-card { flex-direction: row; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; }
+.hub-card .app-icon { margin: 0; border-radius: 8px; }
+.hub-card::before { inset: -60% 50% -60% -30%; }
+.hub-q { font-size: 13.5px; font-weight: 500; }
+.hub-term { background: none; border: 0; padding: 4px 8px; font-size: 12px; color: var(--dim); }
+.hub-term:hover { color: var(--cyan); }
