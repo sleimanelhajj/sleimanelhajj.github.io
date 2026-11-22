@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import Window from './Window'
 import { getApp } from './registry'
-import { MenuBar, Dock, DesktopIcons, Widgets, Spotlight, Toast } from './Chrome'
+import { MenuBar, Dock, DesktopIcons, Widgets, Spotlight } from './Chrome'
+import { Hub, Annotations } from './Guide'
 
 export default function Desktop() {
   const [wins, setWins] = useState([]) // { id, z, min, max }
@@ -23,10 +24,8 @@ export default function Desktop() {
   const focus = (id) => { top.current += 1; const z = top.current; patch(id, (w) => (w.z === z - 1 ? w : { ...w, z })) }
   const close = (id) => setWins((ws) => ws.filter((w) => w.id !== id))
 
-  useEffect(() => {
-    open('about')
-    if (window.innerWidth >= 1200) setTimeout(() => open('terminal'), 300)
-  }, [open])
+  // "Show desktop": minimise everything so the hub and guide notes come back.
+  const showDesktop = () => setWins((ws) => ws.map((w) => ({ ...w, min: true })))
 
   useEffect(() => {
     const onKey = (e) => {
@@ -45,10 +44,12 @@ export default function Desktop() {
 
   return (
     <div className="desktop">
-      <MenuBar focusedApp={focusedId && getApp(focusedId)} onSpotlight={() => setSpot(true)} onOpen={open} />
+      <MenuBar focusedApp={focusedId && getApp(focusedId)} onSpotlight={() => setSpot(true)} onOpen={open} onGuide={showDesktop} />
       <div className="workspace" ref={bounds}>
         <DesktopIcons onOpen={open} />
         <Widgets onOpen={open} />
+        <Hub onOpen={open} dimmed={visible.length > 0} />
+        <Annotations show={visible.length === 0} />
         <AnimatePresence>
           {wins.map((w, i) => (
             <Window
@@ -69,7 +70,6 @@ export default function Desktop() {
       </div>
       <Dock openIds={wins.map((w) => w.id)} onOpen={open} />
       <Spotlight open={spot} onClose={() => setSpot(false)} onOpen={open} />
-      <Toast />
     </div>
   )
 }

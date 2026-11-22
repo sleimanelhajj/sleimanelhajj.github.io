@@ -1,7 +1,7 @@
 // Menu bar, dock, desktop widgets, wallpaper, spotlight and toast.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { FiSearch, FiWifi, FiBattery, FiGithub, FiLinkedin, FiArrowUpRight } from 'react-icons/fi'
+import { FiHelpCircle, FiSearch, FiWifi, FiBattery, FiGithub, FiLinkedin, FiArrowUpRight } from 'react-icons/fi'
 import { APPS, AppIcon, getApp } from './registry'
 import { useClock, useTick, fmtTime, fmtDate } from './hooks'
 import { profile } from '../data'
@@ -30,7 +30,7 @@ export function Wallpaper() {
   )
 }
 
-export function MenuBar({ focusedApp, onSpotlight, onOpen }) {
+export function MenuBar({ focusedApp, onSpotlight, onOpen, onGuide }) {
   const now = useClock()
   const [menu, setMenu] = useState(false)
   return (
@@ -58,6 +58,9 @@ export function MenuBar({ focusedApp, onSpotlight, onOpen }) {
         </AnimatePresence>
       </div>
       <div className="mb-right">
+        <button className="mb-search" onClick={onGuide} title="Show desktop & guide">
+          <FiHelpCircle /> <span className="mb-guide-label">Guide</span>
+        </button>
         <button className="mb-search" onClick={onSpotlight} aria-label="Search">
           <FiSearch /> <kbd>Ctrl K</kbd>
         </button>

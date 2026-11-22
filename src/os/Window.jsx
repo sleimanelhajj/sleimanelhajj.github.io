@@ -7,8 +7,8 @@ export default function Window({ app, st, idx, bounds, focused, onFocus, onClose
   const area = bounds.current?.getBoundingClientRect() ?? { width: window.innerWidth, height: window.innerHeight - 40 }
   const w = Math.min(app.w, area.width - 24)
   const h = Math.min(app.h, area.height - 110)
-  const x = useMotionValue(Math.max(12, Math.min(area.width * 0.16 + idx * 42, area.width - w - 12)))
-  const y = useMotionValue(Math.max(10, Math.min(18 + idx * 36, area.height - h - 100)))
+  const x = useMotionValue(Math.max(12, Math.min((area.width - w) / 2 + (idx % 4) * 36 - 54, area.width - w - 12)))
+  const y = useMotionValue(Math.max(10, Math.min(Math.max(18, (area.height - h - 100) / 2) + (idx % 4) * 30, area.height - h - 100)))
   const prev = useRef(null)
 
   useEffect(() => {
